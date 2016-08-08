@@ -1,0 +1,62 @@
+* CL-SXML
+CL-SXML implements Oleg Kiselyov's [[http://okmij.org/ftp/Scheme/SXML.html][SXML]], an S-expression rendering of
+the XML Infoset.  It requires [[https://common-lisp.net/project/cxml/index.html][CXML]] for SAX parsing.
+** API
+*** Class ~SXML-HANDLER~
+**** Class precedence list
+~sax:default-handler~, ~sax:content-handler~, ~sax:abstract-handler~,
+~sax:sax-parser-mixin~, ~standard-object~, ~t~
+**** Description
+A CXML SAX handler which produces SXML documents.  The constructor
+takes a single initarg, ~:PACKAGE~ (defaults to ~*PACKAGE*~), which
+specifies the package to intern symbols into.
+
+An interesting omission in the SXML spec is no support for the XML
+DOCTYPE declaration.  The spec does provide for optional annotations,
+though, and so I've chosen to use a ~*DOCTYPE*~ annotation to hold
+that information.  This may change in the future.
+
+Note that all whitespace is preserved, as required by the XML spec.
+This is ugly — yet more proof that S-expressions are preferable to
+XML.
+
+**** Example
+#+BEGIN_SRC lisp
+(cxml:parse "<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Document PUBLIC '-//foo.example//An Example//EN' 'http://foo.example/'>
+<?top-level here's a top-level processing instruction?>
+<doc xmlns:h='http://www.w3.org/1999/xhtml'>
+<h:html>
+<h:body>
+<h:p class='bar'>Here is some text.</h:p>
+</h:body></h:html></doc>"
+            (make-instance 'cl-sxml:sxml-handler)
+            :entity-resolver (lambda (p s)
+                               (declare (ignorable p s))
+                               (flexi-streams:make-in-memory-input-stream nil)))
+#+END_SRC
+
+Yields:
+
+#+BEGIN_SRC lisp
+(*TOP*
+ (@
+  (*DOCTYPE* "Document" "-//foo.example//An Example//EN"
+   "http://foo.example/"))
+ (*pi* |top-level| "here's a top-level processing instruction")
+ (|doc|
+  (@
+   (@
+    (*namespaces*
+     (|http://www.w3.org/1999/xhtml| "http://www.w3.org/1999/xhtml" |h|))))
+  "
+"
+  (|http://www.w3.org/1999/xhtml:html| "
+"
+   (|http://www.w3.org/1999/xhtml:body| "
+"
+    (|http://www.w3.org/1999/xhtml:p| (@ (|class| "bar"))
+     "Here is some text.")
+    "
+"))))
+#+END_SRC
