@@ -12,7 +12,8 @@
                (:file "cl-sxml")))
 
 (defsystem #:cl-sxml-test
-  :depends-on (#:cl-sxml #:fiveam #:asdf #:uiop #:flexi-streams)
+  :depends-on (#:cl-sxml #:fiveam #:asdf #:uiop #:flexi-streams
+                         #+lispworks #:closure-common)
   :serial t
   :components ((:file "package")
                (:file "test"))
