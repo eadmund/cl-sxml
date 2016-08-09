@@ -1,6 +1,15 @@
 * CL-SXML
 CL-SXML implements Oleg Kiselyov's [[http://okmij.org/ftp/Scheme/SXML.html][SXML]], an S-expression rendering of
 the XML Infoset.  It requires [[https://common-lisp.net/project/cxml/index.html][CXML]] for SAX parsing.
+
+CL-SXML is developed on SBCL, but it has been successfully tested on
+Allegro CL, LispWorks, Clozure & CLISP.  It does not currently work
+with ECL.
+
+Note: ~CXML:PARSE~ behaves differently with different implementations.
+With SBCL & Allegro CL, one can just pass it a string to parse; with
+LispWorks one must call ~RUNES:UTF8-STRING-TO-ROD~.
+
 ** API
 *** Class ~SXML-HANDLER~
 **** Class precedence list
