@@ -13,7 +13,7 @@
 
 (defsystem #:cl-sxml-test
   :depends-on (#:cl-sxml #:fiveam #:asdf #:uiop #:flexi-streams
-                         #+lispworks #:closure-common)
+                         #+(or lispworks clisp) #:closure-common)
   :serial t
   :components ((:file "package")
                (:file "test"))

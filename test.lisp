@@ -25,7 +25,7 @@
 <h:p class='bar'>Here is some text.</h:p>
 </h:body></h:html></doc>"))
     #+(or sbcl allegro ccl) text
-    #+lispworks(runes:utf8-string-to-rod text)))
+    #+(or lispworks clisp)(runes:utf8-string-to-rod text)))
 
 (test doc-example
   (let ((result (cxml:parse (example-stream)
