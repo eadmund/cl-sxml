@@ -27,7 +27,7 @@
           (first elements))))
 
 (defmethod sax:comment ((handler sxml-handler) data)
-  (push data (first (slot-value handler 'elements))))
+  (push (list (intern "*COMMENT*") data) (first (slot-value handler 'elements))))
 
 (defmethod sax:processing-instruction ((handler sxml-handler) target data)
   (with-slots (package elements)
@@ -54,7 +54,8 @@
 (defun make-namespace (attribute package)
   `(,(intern (sax:attribute-value attribute) package)
      ,(sax:attribute-value attribute)
-     ,(intern (sax:attribute-local-name attribute) package)))
+     ,(intern (or (sax:attribute-local-name attribute)
+                  (sax:attribute-qname attribute)) package)))
 
 (defmethod sax:start-element ((handler sxml-handler)
                               namespace-uri
