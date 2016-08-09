@@ -15,15 +15,20 @@
   (declare (ignorable public-id system-id))
   (flexi-streams:make-in-memory-input-stream nil))
 
-(test doc-example
-  (let ((result (cxml:parse "<?xml version='1.0' encoding='UTF-8'?>
+(defun example-stream ()
+  (let ((text "<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE Document PUBLIC '-//foo.example//An Example//EN' 'http://foo.example/'>
 <?top-level here's a top-level processing instruction?>
 <doc xmlns:h='http://www.w3.org/1999/xhtml'>
 <h:html>
 <h:body>
 <h:p class='bar'>Here is some text.</h:p>
-</h:body></h:html></doc>"
+</h:body></h:html></doc>"))
+    #+(or sbcl allegro ccl) text
+    #+lispworks(runes:utf8-string-to-rod text)))
+
+(test doc-example
+  (let ((result (cxml:parse (example-stream)
                            (make-instance 'cl-sxml:sxml-handler)
                            :entity-resolver #'null-resolver)))
     (is (eq (first result) '*TOP*))
@@ -49,18 +54,12 @@
 "))))))))
 
 (test package
-  (let* ((package (make-package (gensym)))
-         (result (cxml:parse "<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE Document PUBLIC '-//foo.example//An Example//EN' 'http://foo.example/'>
-<?top-level here's a top-level processing instruction?>
-<doc xmlns:h='http://www.w3.org/1999/xhtml'>
-<h:html>
-<h:body>
-<h:p class='bar'>Here is some text.</h:p>
-</h:body></h:html></doc>"
+  (let* ((package (make-package (gensym "TEST-PACKAGE") :use nil))
+         (result (cxml:parse (example-stream)
                              (make-instance 'cl-sxml:sxml-handler :package package)
                              :entity-resolver #'null-resolver)))
     (check-type result cons)
+    (format t "~&~s" result)
     (labels ((check-items (list) (loop for item in list
                         do (typecase item
                              (symbol (is (equal (symbol-package item) package)))
