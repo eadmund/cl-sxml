@@ -52,10 +52,12 @@
    package))
 
 (defun make-namespace (attribute package)
-  `(,(intern (sax:attribute-value attribute) package)
-     ,(sax:attribute-value attribute)
-     ,(intern (or (sax:attribute-local-name attribute)
-                  (sax:attribute-qname attribute)) package)))
+  (let ((value (sax:attribute-value attribute))
+        (local-name (sax:attribute-local-name attribute)))
+    `(,(intern value package)
+       ,value
+       ,@(when local-name
+           (intern local-name package)))))
 
 (defmethod sax:start-element ((handler sxml-handler)
                               namespace-uri
