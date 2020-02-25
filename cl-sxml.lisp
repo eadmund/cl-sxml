@@ -57,7 +57,7 @@
     `(,(intern value package)
        ,value
        ,@(when local-name
-           (intern local-name package)))))
+           `(,(intern local-name package))))))
 
 (defmethod sax:start-element ((handler sxml-handler)
                               namespace-uri
